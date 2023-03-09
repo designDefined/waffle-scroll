@@ -86,6 +86,7 @@ export const useWaffleScroll = <T extends object>(
     //처음일 때는 이벤트 리스너 등록
     if (!isInitiated) {
       localWindow.addEventListener("scroll", onScrollHandler);
+      localWindow.addEventListener("resize", onScrollHandler);
       isInitiated = true;
     }
     //스크롤 이벤트 처음 등록 시

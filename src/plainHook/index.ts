@@ -80,6 +80,7 @@ const useWaffleScroll = <T extends object>(
     //처음 사용되는 훅은 이벤트리스너를 등록
     if (!isInitiated) {
       localWindow.addEventListener("scroll", onScrollHandler);
+      localWindow.addEventListener("resize", onScrollHandler);
       isInitiated = true;
     }
     //마운트 시 리스너 등록

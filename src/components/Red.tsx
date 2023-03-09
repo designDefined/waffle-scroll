@@ -6,9 +6,14 @@ function Red() {
     progress: number;
     available: boolean;
   }>(
-    ({ progress, setScrollState, toggleState }) => {
+    ({ progress, setScrollState, toggleState, setGlobalState }) => {
       setScrollState({ progress });
       toggleState(2.2, 2.5, "available");
+      if (progress > 2.3) {
+        setGlobalState({ current: "abc" });
+      } else {
+        setGlobalState({ current: "nobody" });
+      }
     },
     { progress: 0, available: false },
   );

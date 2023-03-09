@@ -1,21 +1,14 @@
 import "./App.css";
 import Red from "./components/Red";
 import Blue from "./components/Blue";
-import { useState } from "react";
+import Global from "./components/Global";
 
 function App() {
-  const [get, set] = useState(false);
   return (
     <div className="App">
-      {!get && <Red />}
+      <Red />
       <Blue />
-      <button
-        onClick={() => {
-          set(!get);
-        }}
-      >
-        123
-      </button>
+      <Global />
     </div>
   );
 }

@@ -1,53 +1,47 @@
 import { useLayoutEffect, useReducer, useRef } from "react";
 import { Calculatable, calculateProgress, roundBy } from "./calculate";
 import { partialIsDifferent } from "./compare";
+import { GlobalStateApi, globalStateApis } from "./useGlobalScrollState";
+import { getScrollUtils, ScrollUtils } from "./utils";
 
-//types
+//type utility
 export type PickByType<T, U> = {
   [P in keyof T as T[P] extends U ? (U extends T[P] ? P : never) : never]: T[P];
 };
 
+//types
 type AvailableHTMLElement = HTMLDivElement;
 
-type ScrollApis<StateType extends object> = {
-  getScrollState: StateType;
-  setScrollState: (partial: Partial<StateType>) => void;
-};
-type ScrollUtils<StateType extends object> = {
-  toggleState: (
-    min: number,
-    max: number,
-    stateKeyToToggle: keyof PickByType<StateType, boolean>,
-  ) => void;
+export type ScrollApis<T extends object> = {
+  getScrollState: T;
+  setScrollState: (partial: Partial<T>) => void;
 };
 
-type ScrollFunction<StateType extends object> = (
-  params: ScrollApis<StateType> &
-    ScrollUtils<StateType> & {
+type ScrollFunction<T extends object> = (
+  params: ScrollApis<T> &
+    ScrollUtils<T> &
+    GlobalStateApi & {
       progress: number;
     },
 ) => void;
 
-type ScrollFunctionParams<StateType extends object> = Parameters<
-  ScrollFunction<StateType>
->;
-
-type ScrollListener<StateType extends object> = {
+type ScrollListener<T extends object> = {
   element: AvailableHTMLElement;
-  scrollFunction: ScrollFunction<StateType>;
+  scrollFunction: ScrollFunction<T>;
   apis: {
-    getScrollState: StateType;
-    setScrollState: (partial: Partial<StateType>) => void;
+    getScrollState: T;
+    setScrollState: (partial: Partial<T>) => void;
   };
 };
 
-//global scope data
+//local scope window
 const localWindow = window;
+
+//local data
 const scrollListeners: ScrollListener<any>[] = [];
 let isInitiated = false;
 
-//function
-
+//scroll handler
 const onScrollHandler = () => {
   const currentViewport: Calculatable = {
     offsetTop: localWindow.scrollY,
@@ -61,56 +55,27 @@ const onScrollHandler = () => {
       offsetHeight: element.offsetHeight,
     };
     const progress = roundBy(calculateProgress(target, currentViewport), 2);
-    scrollFunction({ ...apis, ...getScrollUtils(progress, apis), progress });
+    scrollFunction({
+      ...apis,
+      ...globalStateApis,
+      ...getScrollUtils(progress, apis),
+      progress,
+    });
   }
-  console.log(scrollListeners);
 };
 
-//utility function
-const getScrollUtils = <StateType extends object>(
-  progress: number,
-  apis: ScrollApis<StateType>,
-): ScrollUtils<StateType> => {
-  const { getScrollState, setScrollState } = apis;
-
-  const toggleState: ScrollUtils<StateType>["toggleState"] = (
-    min,
-    max,
-    stateKeyToToggle,
-  ) => {
-    if (progress >= min && progress <= max) {
-      setScrollState({ [stateKeyToToggle]: true });
-    } else {
-      setScrollState({ [stateKeyToToggle]: false });
-    }
-  };
-  return { toggleState };
-};
-
-export const useWaffleScrollContainer = () => {
-  const ref = useRef<AvailableHTMLElement | null>(null);
-
-  //스크롤 이벤트 처음 등록 시
-  useLayoutEffect(() => {
-    localWindow.addEventListener("scroll", onScrollHandler);
-    onScrollHandler();
-    //return window.removeEventListener("scroll", onScrollHandler);
-  }, []);
-
-  return { ref, onScroll: onScrollHandler };
-};
-
-export const useWaffleScroll = <StateType extends object>(
-  scrollFunction: ScrollFunction<StateType>,
-  initialState: StateType,
+//main hook
+export const useWaffleScroll = <T extends object>(
+  scrollFunction: ScrollFunction<T>,
+  initialState: T,
 ) => {
   const [, forceUpdate] = useReducer((c: number): number => c + 1, 0);
   const ref = useRef<AvailableHTMLElement | null>(null);
-  const state = useRef<StateType>(initialState);
-  const func = useRef<ScrollFunction<StateType>>(scrollFunction);
-  const apis: ScrollApis<StateType> = {
+  const state = useRef<T>(initialState);
+  const func = useRef<ScrollFunction<T>>(scrollFunction);
+  const apis: ScrollApis<T> = {
     getScrollState: state.current,
-    setScrollState: (partial: Partial<StateType>): void => {
+    setScrollState: (partial: Partial<T>): void => {
       if (partialIsDifferent(state.current, partial)) {
         state.current = { ...state.current, ...partial };
         forceUpdate();
@@ -125,7 +90,7 @@ export const useWaffleScroll = <StateType extends object>(
     }
     //스크롤 이벤트 처음 등록 시
     if (ref.current) {
-      const listener: ScrollListener<StateType> = {
+      const listener: ScrollListener<T> = {
         element: ref.current,
         scrollFunction: func.current,
         apis: apis,
@@ -133,7 +98,7 @@ export const useWaffleScroll = <StateType extends object>(
       scrollListeners.push(listener);
     }
     onScrollHandler();
-
+    //언마운트 시 리스터 삭제
     return () => {
       const index = scrollListeners.findIndex(
         (listener) => listener.element === ref.current,

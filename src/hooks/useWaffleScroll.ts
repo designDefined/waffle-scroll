@@ -44,17 +44,16 @@ type ScrollListener<StateType extends object> = {
 //global scope data
 const localWindow = window;
 const scrollListeners: ScrollListener<any>[] = [];
-const isInitiated = false;
+let isInitiated = false;
 
 //function
-//const onInitiateScroll = () => {};
 
 const onScrollHandler = () => {
   const currentViewport: Calculatable = {
     offsetTop: localWindow.scrollY,
     offsetHeight: localWindow.innerHeight,
   };
-  //interate current scrollListeners
+  //iterate current scrollListeners
   for (const { element, apis, scrollFunction } of scrollListeners) {
     //calculate scroll progress
     const target: Calculatable = {
@@ -64,6 +63,7 @@ const onScrollHandler = () => {
     const progress = roundBy(calculateProgress(target, currentViewport), 2);
     scrollFunction({ ...apis, ...getScrollUtils(progress, apis), progress });
   }
+  console.log(scrollListeners);
 };
 
 //utility function
@@ -117,8 +117,13 @@ export const useWaffleScroll = <StateType extends object>(
       }
     },
   };
-  //스크롤 이벤트 처음 등록 시
   useLayoutEffect(() => {
+    //처음일 때는 이벤트 리스너 등록
+    if (!isInitiated) {
+      localWindow.addEventListener("scroll", onScrollHandler);
+      isInitiated = true;
+    }
+    //스크롤 이벤트 처음 등록 시
     if (ref.current) {
       const listener: ScrollListener<StateType> = {
         element: ref.current,
@@ -127,6 +132,16 @@ export const useWaffleScroll = <StateType extends object>(
       };
       scrollListeners.push(listener);
     }
+    onScrollHandler();
+
+    return () => {
+      const index = scrollListeners.findIndex(
+        (listener) => listener.element === ref.current,
+      );
+      if (index >= 0) {
+        scrollListeners.splice(index, 1);
+      }
+    };
   }, [ref]);
 
   return { ref, scrollState: state.current };

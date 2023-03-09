@@ -1,16 +1,21 @@
 import "./App.css";
 import Red from "./components/Red";
 import Blue from "./components/Blue";
-import { useWaffleScrollContainer } from "./hooks/useWaffleScroll";
-import { useEffect } from "react";
+import { useState } from "react";
 
 function App() {
-  const { ref } = useWaffleScrollContainer();
-
+  const [get, set] = useState(false);
   return (
-    <div className="App" ref={ref}>
-      <Red />
+    <div className="App">
+      {!get && <Red />}
       <Blue />
+      <button
+        onClick={() => {
+          set(!get);
+        }}
+      >
+        123
+      </button>
     </div>
   );
 }

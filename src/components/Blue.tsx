@@ -8,7 +8,7 @@ function Blue() {
     scrollState: { progress },
   } = useWaffleScroll(
     ({ progress, setScrollState }) => {
-      setScrollState({ progress: progress });
+      //   setScrollState({ progress: progress });
     },
     {
       progress: 0,

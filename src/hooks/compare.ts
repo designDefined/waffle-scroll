@@ -10,10 +10,12 @@ export const partialIsDifferent = <T extends object>(
   for (const [key, value] of partialEntries) {
     if (originalKeys.includes(key)) {
       const validKey = key as keyof typeof state;
-      if (state[validKey] === value) {
-        return false;
+      if (state[validKey] !== value) {
+        return true;
       }
+    } else {
+      return true;
     }
   }
-  return true;
+  return false;
 };

@@ -1,21 +1,22 @@
 import styles from "./style.module.css";
 import { useWaffleScroll } from "../hooks/useWaffleScroll";
-import { useEffect } from "react";
+
 function Red() {
-  const { ref, scrollState } = useWaffleScroll<{ available: "yes" | "no" }>(
-    ({ progress, setScrollState }) => {
-      if (progress > 2.5) {
-        setScrollState({ available: "yes" });
-      } else {
-        setScrollState({ available: "no" });
-      }
+  const { ref, scrollState } = useWaffleScroll<{
+    progress: number;
+    available: boolean;
+  }>(
+    ({ progress, setScrollState, toggleState }) => {
+      setScrollState({ progress });
+      toggleState(2.2, 2.5, "available");
     },
-    { available: "no" },
+    { progress: 0, available: false },
   );
+
   return (
     <div className={styles.Red} ref={ref}>
-      <div>진행도: {scrollState.available}</div>
-      <div>상태: {scrollState.available}</div>
+      <div>진행도: {scrollState.progress}</div>
+      <div>상태: {scrollState.available ? "활성화" : "비활성화"}</div>
     </div>
   );
 }

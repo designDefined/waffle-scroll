@@ -1,19 +1,14 @@
 import styles from "./style.module.css";
-import { useWaffleScroll } from "../hooks/useWaffleScroll";
+import useWaffleScroll from "../final/index";
 
 function Red() {
   const { ref, scrollState } = useWaffleScroll<{
     progress: number;
     available: boolean;
   }>(
-    ({ progress, setScrollState, toggleState, setGlobalState }) => {
+    ({ progress, setScrollState, toggleState }) => {
       setScrollState({ progress });
       toggleState(2.2, 2.5, "available");
-      if (progress > 2.3) {
-        setGlobalState({ current: "abc" });
-      } else {
-        setGlobalState({ current: "nobody" });
-      }
     },
     { progress: 0, available: false },
   );

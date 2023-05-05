@@ -1,6 +1,5 @@
 import styles from "./style.module.css";
-import { useWaffleScroll } from "../hooks/useWaffleScroll";
-import { roundBy } from "../hooks/calculate";
+import useWaffleScroll from "../final/index";
 
 function Blue() {
   const {
@@ -8,7 +7,7 @@ function Blue() {
     scrollState: { progress },
   } = useWaffleScroll(
     ({ progress, setScrollState }) => {
-      //   setScrollState({ progress: progress });
+      setScrollState({ progress: progress });
     },
     {
       progress: 0,

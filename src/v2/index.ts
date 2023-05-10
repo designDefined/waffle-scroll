@@ -4,9 +4,10 @@ import { Calculatable, calculateProgress, roundBy } from "../final/tools";
 import {
   AvailableHTMLElement,
   DefaultState,
-  LoadScrollContainer,
+  SetScrollContainer,
   ScrollApis,
   ScrollCallback,
+  ScrollCreatorReturnType,
   ScrollHook,
   ScrollListener,
 } from "./types";
@@ -21,7 +22,7 @@ const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 const createScrollHook = <T extends Record<string, any>>(
   initialState: DefaultState<T>,
   hasScrollContainer?: boolean,
-): [ScrollHook<T>, LoadScrollContainer] => {
+): ScrollCreatorReturnType<T> => {
   let isInitiated = false;
   let globalState: T = initialState.globalState;
   const defaultCallback = initialState.defaultCallback;
@@ -47,8 +48,6 @@ const createScrollHook = <T extends Record<string, any>>(
           offsetHeight: window.innerHeight,
         };
 
-    console.log(currentViewport);
-
     for (const { element, apis, callback } of listeners) {
       const target: Calculatable = {
         offsetTop: element.offsetTop,
@@ -66,7 +65,7 @@ const createScrollHook = <T extends Record<string, any>>(
     }
   };
 
-  const loadContainer: LoadScrollContainer = (containerElement) => {
+  const setScrollContainer: SetScrollContainer = (containerElement) => {
     if (!hasScrollContainer) {
       console.error(
         "스크롤 컨테이너를 사용하려면 hasScrolContainer를 true로 하세요",
@@ -123,7 +122,7 @@ const createScrollHook = <T extends Record<string, any>>(
     return { targetRef, globalState: getGlobalState() };
   };
 
-  return [useScroll, loadContainer];
+  return Object.assign(useScroll, { setScrollContainer });
 };
 
 export default createScrollHook;

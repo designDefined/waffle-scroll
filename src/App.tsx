@@ -29,10 +29,12 @@ function App() {
       <Blue />
       <Global />
       */}
-      <div className="progress">{nestedState.progress}</div>
+      <div className="progress">
+        whole: {globalState.progress} nest: {nestedState.progress}
+      </div>
       <div className="parent" ref={targetRef}>
         parent
-        <div className="scrollChild" ref={load}>
+        <div className="scrollChild" ref={useNestedScroll.setScrollContainer}>
           <div className="mini" ref={nestedRef}></div>
         </div>
       </div>

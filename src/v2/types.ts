@@ -31,6 +31,10 @@ export type ScrollHook<T extends Record<string, any>> = (
   globalState: T;
 };
 
-export type LoadScrollContainer = (
+export type SetScrollContainer = (
   containerElement: AvailableHTMLElement,
 ) => void;
+
+/* TODO: 조건부 타입 이용해서 hasScrollContainer가 true일 때만 setScrollContainer가 가능하게 할 수는 없을까? */
+export type ScrollCreatorReturnType<T extends Record<string, any>> =
+  ScrollHook<T> & { setScrollContainer: SetScrollContainer };

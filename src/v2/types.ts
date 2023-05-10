@@ -30,3 +30,7 @@ export type ScrollHook<T extends Record<string, any>> = (
   targetRef: MutableRefObject<AvailableHTMLElement | null>;
   globalState: T;
 };
+
+export type LoadScrollContainer = (
+  containerElement: AvailableHTMLElement,
+) => void;

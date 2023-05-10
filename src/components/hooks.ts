@@ -6,3 +6,13 @@ export const [useTestScroll] = createScrollHook({
     setGlobal({ progress });
   },
 });
+
+export const [useNestedScroll, load] = createScrollHook(
+  {
+    globalState: { progress: -999 },
+    defaultCallback: ({ setGlobal, progress }) => {
+      setGlobal({ progress });
+    },
+  },
+  true,
+);

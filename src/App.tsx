@@ -3,7 +3,7 @@ import Red from "./components/Red";
 import Blue from "./components/Blue";
 import Global from "./components/Global";
 import { useEffect, useRef } from "react";
-import { load, useNestedScroll, useTestScroll } from "./components/hooks";
+import { useNestedScroll, useTestScroll } from "./components/hooks";
 
 function App() {
   const ref1 = useRef<HTMLDivElement>(null);

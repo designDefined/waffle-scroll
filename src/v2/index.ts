@@ -1,14 +1,9 @@
-import {
-  MutableRefObject,
-  useEffect,
-  useLayoutEffect,
-  useReducer,
-  useRef,
-} from "react";
+import { useEffect, useLayoutEffect, useReducer, useRef } from "react";
 import { partialIsDifferent } from "./tools";
 import { Calculatable, calculateProgress, roundBy } from "../final/tools";
 import {
   AvailableHTMLElement,
+  DefaultState,
   ScrollApis,
   ScrollCallback,
   ScrollHook,
@@ -23,11 +18,12 @@ const isSSR =
 const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
 const createScrollHook = <T extends Record<string, any>>(
-  initialGlobalState: T,
+  initialState: DefaultState<T>,
   hasScrollContainer?: boolean,
 ): [scrollHook: ScrollHook<T>] => {
   let isInitiated = false;
-  let globalState: T = initialGlobalState;
+  let globalState: T = initialState.globalState;
+  const defaultCallback = initialState.defaultCallback;
   const listeners: Set<ScrollListener<T>> = new Set();
 
   const getGlobalState = () => globalState;
@@ -42,7 +38,7 @@ const createScrollHook = <T extends Record<string, any>>(
     const [, forceUpdate] = useReducer((c: number): number => c + 1, 0);
     const targetRef = useRef<AvailableHTMLElement | null>(null);
     const listenerRef = useRef<ScrollListener<T>>(null);
-    const scrollCallback = useRef<ScrollCallback<T>>(callback);
+    const scrollCallback = useRef<ScrollCallback<T>>(callback ?? null);
     const apis: ScrollApis<T> = {
       getGlobal: getGlobalState(),
       setGlobal: setGlobalState,
@@ -59,10 +55,14 @@ const createScrollHook = <T extends Record<string, any>>(
           offsetHeight: element.offsetHeight,
         };
         const progress = roundBy(calculateProgress(target, currentViewport), 2);
-        callback({
-          ...apis,
-          progress,
-        });
+        //defaultCallback이 있을 경우 적용
+        if (defaultCallback) defaultCallback({ ...apis, progress });
+        //자체 callback 적용
+        if (callback)
+          callback({
+            ...apis,
+            progress,
+          });
       }
     };
 
@@ -79,7 +79,7 @@ const createScrollHook = <T extends Record<string, any>>(
       if (targetRef.current) {
         const listener: ScrollListener<T> = {
           element: targetRef.current,
-          callback: scrollCallback.current,
+          callback: scrollCallback.current ?? null,
           forceUpdate,
           apis,
         };

@@ -19,15 +19,20 @@ export type ScrollCallback<T extends Record<string, any>> = (
 
 export type ScrollListener<T extends Record<string, any>> = {
   element: AvailableHTMLElement;
-  callback: ScrollCallback<T>;
+  callback: ScrollCallback<T> | null;
   forceUpdate: () => void;
   apis: ScrollApis<T>;
+};
+
+export type DefaultState<T extends Record<string, any>> = {
+  globalState: T;
+  defaultCallback?: ScrollCallback<T>;
 };
 
 export type ScrollHook<
   T extends Record<string, any>,
   // U extends Record<string, any>,
-> = (callback: ScrollCallback<T>) => {
+> = (callback?: ScrollCallback<T>) => {
   targetRef: MutableRefObject<AvailableHTMLElement | null>;
   globalState: T;
 };

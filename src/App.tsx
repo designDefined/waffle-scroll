@@ -9,11 +9,7 @@ function App() {
   const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
 
-  const { targetRef, globalState } = useTestScroll(
-    ({ getGlobal, setGlobal, progress }) => {
-      setGlobal({ progress });
-    },
-  );
+  const { targetRef, globalState } = useTestScroll();
 
   /*
   useEffect(() => {

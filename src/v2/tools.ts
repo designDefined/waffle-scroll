@@ -49,7 +49,7 @@ export const calculateProgress = (
     if (diff >= targetHeight) return 2 + (diff - targetHeight) / viewportHeight;
   }
   if (viewportHeight > targetHeight) {
-    if (diff <= targetHeight) return 1 + diff / targetHeight;
+    if (diff <= targetHeight) return diff / targetHeight;
     if (diff > targetHeight && diff < viewportHeight)
       return 1 + (diff - targetHeight) / (viewportHeight - targetHeight);
     if (diff >= viewportHeight)

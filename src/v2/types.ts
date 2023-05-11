@@ -4,8 +4,8 @@ import { MutableRefObject } from "react";
 export type AvailableHTMLElement = HTMLDivElement;
 
 export type ScrollApis<GlobalInterface extends Record<string, any>> = {
-  getGlobal: GlobalInterface;
-  setGlobal: (partial: Partial<GlobalInterface>) => void;
+  getState: GlobalInterface;
+  setState: (partial: Partial<GlobalInterface>) => void;
 };
 
 export type ScrollCallback<T extends Record<string, any>> = (
@@ -28,7 +28,14 @@ export type ScrollHook<T extends Record<string, any>> = (
   callback?: ScrollCallback<T>,
 ) => {
   targetRef: MutableRefObject<AvailableHTMLElement | null>;
-  globalState: T;
+  state: T;
+};
+export type LocalScrollHook<T extends Record<string, any>> = (
+  callback: ScrollCallback<T>,
+  initialState: T,
+) => {
+  targetRef: MutableRefObject<AvailableHTMLElement | null>;
+  state: T;
 };
 
 export type SetScrollContainer = (
@@ -38,3 +45,6 @@ export type SetScrollContainer = (
 /* TODO: 조건부 타입 이용해서 hasScrollContainer가 true일 때만 setScrollContainer가 가능하게 할 수는 없을까? */
 export type ScrollCreatorReturnType<T extends Record<string, any>> =
   ScrollHook<T> & { setScrollContainer: SetScrollContainer };
+
+export type LocalScrollCreatorReturnType<T extends Record<string, any>> =
+  LocalScrollHook<T> & { setScrollContainer: SetScrollContainer };

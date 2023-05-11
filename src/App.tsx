@@ -4,13 +4,19 @@ import Blue from "./components/Blue";
 import Global from "./components/Global";
 import { useEffect, useRef } from "react";
 import { useNestedScroll, useTestScroll } from "./components/hooks";
+import { Simulate } from "react-dom/test-utils";
 
 function App() {
   const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
 
-  const { targetRef, globalState } = useTestScroll();
-  const { targetRef: nestedRef, globalState: nestedState } = useNestedScroll();
+  const { targetRef, state: globalState } = useTestScroll();
+  const { targetRef: nestedRef, state: nestedState } = useNestedScroll(
+    ({ progress, setState }) => {
+      setState({ progress });
+    },
+    { progress: 0 },
+  );
 
   /*
     useEffect(() => {

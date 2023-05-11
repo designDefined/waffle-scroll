@@ -1,18 +1,10 @@
-import createScrollHook from "../v2";
+import { createLocalScrollHook, createScrollHook } from "../v2";
 
 export const useTestScroll = createScrollHook({
   globalState: { progress: -999 },
-  defaultCallback: ({ setGlobal, progress }) => {
-    setGlobal({ progress });
+  defaultCallback: ({ setState, progress }) => {
+    setState({ progress });
   },
 });
 
-export const useNestedScroll = createScrollHook(
-  {
-    globalState: { progress: -999 },
-    defaultCallback: ({ setGlobal, progress }) => {
-      setGlobal({ progress });
-    },
-  },
-  true,
-);
+export const useNestedScroll = createLocalScrollHook(true);

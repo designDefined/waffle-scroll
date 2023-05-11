@@ -19,8 +19,26 @@ const isSSR =
   !window.navigator ||
   /ServerSideRendering|^Deno\//.test(window.navigator.userAgent);
 
-const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
+/**
+ * SSR 사용 시 useLayoutEffect를 사용하면 오류가 발생하여 이를 useEffect로 대체해주는 함수입니다.
+ */
+export const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
+/**
+ * 상태가 공유되는 스크롤 훅을 만드는 함수입니다.
+ * 컴포넌트 외부에서 선언하며, 하나의 상태를 공유하는 컴포넌트에서
+ * 사용할 수 있는 hook을 리턴합니다.
+ *
+ * useLocalscroll.setScrollContainer 메서드를 특정 div의 ref에 전달하면,
+ * 해당 div의 스크롤 이벤트를 기준으로 함수가 작동합니다.
+ *
+ * @param initialState 모든 훅에서 공유할 상태와 스크롤 콜백 객체.
+ * { globalState: object, defaultCallback?: function }형태로 전달.
+ *
+ * @param hasScrollContainer window가 아닌 다른 div를 스크롤 컨테이너로 쓸 경우 true
+ *
+ * @return useScroll 스크롤 훅 API
+ */
 export const createScrollHook = <T extends Record<string, any>>(
   initialState: DefaultState<T>,
   hasScrollContainer?: boolean,
@@ -127,6 +145,17 @@ export const createScrollHook = <T extends Record<string, any>>(
   return Object.assign(useScroll, { setScrollContainer });
 };
 
+/**
+ * 컴포넌트 내부에 상태가 귀속되는 스크롤 훅을 만드는 함수입니다.
+ * 컴포넌트 외부에서 선언하며, 스크롤에 따른 로컬 상태를 변경할 수 있는 hook을 리턴합니다.
+ *
+ * useLocalscroll.setScrollContainer 메서드를 특정 div의 ref에 전달하면,
+ * 해당 div의 스크롤 이벤트를 기준으로 함수가 작동합니다.
+ *
+ * @param hasScrollContainer window가 아닌 다른 div를 스크롤 컨테이너로 쓸 경우 true
+ *
+ * @return useLocalScroll 로컬 스크롤 훅 API
+ */
 export const createLocalScrollHook = <T extends Record<string, any>>(
   hasScrollContainer?: boolean,
 ): LocalScrollCreatorReturnType<T> => {

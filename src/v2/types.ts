@@ -1,4 +1,10 @@
 import { MutableRefObject } from "react";
+import { ScrollUtils } from "./utility";
+
+//Pick
+export type PickByType<T, U> = {
+  [P in keyof T as T[P] extends U ? (U extends T[P] ? P : never) : never]: T[P];
+};
 
 /* TODO: AvailableHTMLElment 가짓수 늘리기 */
 export type AvailableHTMLElement = HTMLDivElement;
@@ -9,7 +15,7 @@ export type ScrollApis<GlobalInterface extends Record<string, any>> = {
 };
 
 export type ScrollCallback<T extends Record<string, any>> = (
-  params: ScrollApis<T> & { progress: number },
+  params: ScrollApis<T> & ScrollUtils<T> & { progress: number },
 ) => void;
 
 export type ScrollListener<T extends Record<string, any>> = {

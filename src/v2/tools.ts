@@ -1,8 +1,3 @@
-//Pick
-export type PickByType<T, U> = {
-  [P in keyof T as T[P] extends U ? (U extends T[P] ? P : never) : never]: T[P];
-};
-
 //compare
 export const partialIsDifferent = <T extends object>(
   state: T,

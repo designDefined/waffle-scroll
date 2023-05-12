@@ -1,5 +1,4 @@
-import { PickByType } from "./tools";
-import { ScrollApis } from "./index";
+import { PickByType, ScrollApis } from "./types";
 
 export type ScrollUtils<T extends object> = {
   toggleState: (
@@ -15,7 +14,7 @@ export const getScrollUtils = <T extends object>(
   progress: number,
   apis: ScrollApis<T>,
 ): ScrollUtils<T> => {
-  const { getScrollState, setScrollState } = apis;
+  const { getState, setState } = apis;
 
   const toggleState: ScrollUtils<T>["toggleState"] = (
     min,
@@ -25,9 +24,9 @@ export const getScrollUtils = <T extends object>(
   ) => {
     if (progress > min && progress < max) {
       if (sideEffect) sideEffect();
-      setScrollState({ [stateKeyToToggle]: true } as Partial<T>);
+      setState({ [stateKeyToToggle]: true } as Partial<T>);
     } else {
-      setScrollState({ [stateKeyToToggle]: false } as Partial<T>);
+      setState({ [stateKeyToToggle]: false } as Partial<T>);
     }
   };
   return { toggleState };

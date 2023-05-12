@@ -1,6 +1,10 @@
 import { useEffect, useLayoutEffect, useReducer, useRef } from "react";
-import { partialIsDifferent } from "./tools";
-import { Calculatable, calculateProgress, roundBy } from "../final/tools";
+import {
+  Calculatable,
+  calculateProgress,
+  partialIsDifferent,
+  roundBy,
+} from "./tools";
 import {
   AvailableHTMLElement,
   DefaultState,
@@ -13,6 +17,7 @@ import {
   LocalScrollHook,
   LocalScrollCreatorReturnType,
 } from "./types";
+import { getScrollUtils } from "./utility";
 
 const isSSR =
   typeof window === "undefined" ||
@@ -74,12 +79,19 @@ export const createScrollHook = <T extends Record<string, any>>(
         offsetHeight: element.offsetHeight,
       };
       const progress = roundBy(calculateProgress(target, currentViewport), 2);
+
       //defaultCallback이 있을 경우 적용
-      if (defaultCallback) defaultCallback({ ...apis, progress });
+      if (defaultCallback)
+        defaultCallback({
+          ...apis,
+          ...getScrollUtils(progress, apis),
+          progress,
+        });
       //자체 callback 적용
       if (callback)
         callback({
           ...apis,
+          ...getScrollUtils(progress, apis),
           progress,
         });
     }

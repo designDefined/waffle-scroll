@@ -11,12 +11,7 @@ function App() {
   const ref2 = useRef<HTMLDivElement>(null);
 
   const { targetRef, state: globalState } = useTestScroll();
-  const { targetRef: nestedRef, state: nestedState } = useNestedScroll(
-    ({ progress, setState }) => {
-      setState({ progress });
-    },
-    { progress: 0 },
-  );
+  const { targetRef: nestedRef, state: nestedState } = useNestedScroll();
 
   /*
     useEffect(() => {

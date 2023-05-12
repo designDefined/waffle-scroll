@@ -25,20 +25,18 @@ export type ScrollListener<T extends Record<string, any>> = {
   apis: ScrollApis<T>;
 };
 
-export type DefaultState<T extends Record<string, any>> = {
-  globalState: T;
-  defaultCallback?: ScrollCallback<T>;
-};
-
 export type ScrollHook<T extends Record<string, any>> = (
   callback?: ScrollCallback<T>,
 ) => {
   targetRef: MutableRefObject<AvailableHTMLElement | null>;
   state: T;
 };
-export type LocalScrollHook<T extends Record<string, any>> = (
-  callback: ScrollCallback<T>,
-  initialState: T,
+export type LocalScrollHook<
+  T extends Record<string, any>,
+  U extends Record<string, any>,
+> = (
+  callback?: ScrollCallback<T & U>,
+  initialState?: U,
 ) => {
   targetRef: MutableRefObject<AvailableHTMLElement | null>;
   state: T;
@@ -52,5 +50,7 @@ export type SetScrollContainer = (
 export type ScrollCreatorReturnType<T extends Record<string, any>> =
   ScrollHook<T> & { setScrollContainer: SetScrollContainer };
 
-export type LocalScrollCreatorReturnType<T extends Record<string, any>> =
-  LocalScrollHook<T> & { setScrollContainer: SetScrollContainer };
+export type LocalScrollCreatorReturnType<
+  T extends Record<string, any>,
+  U extends Record<string, any>,
+> = LocalScrollHook<T, U> & { setScrollContainer: SetScrollContainer };

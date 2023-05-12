@@ -7,7 +7,6 @@ import {
 } from "./tools";
 import {
   AvailableHTMLElement,
-  DefaultState,
   SetScrollContainer,
   ScrollApis,
   ScrollCallback,
@@ -44,8 +43,8 @@ export const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
  *
  * @return useScroll 스크롤 훅 API
  */
-export const createScrollHook = <T extends Record<string, any>>(
-  initialState: DefaultState<T>,
+export const createGlobalScrollHook = <T extends Record<string, any>>(
+  initialState: { globalState: T; defaultCallback?: ScrollCallback<T> },
   hasScrollContainer?: boolean,
 ): ScrollCreatorReturnType<T> => {
   let isInitiated = false;
@@ -164,15 +163,24 @@ export const createScrollHook = <T extends Record<string, any>>(
  * useLocalscroll.setScrollContainer 메서드를 특정 div의 ref에 전달하면,
  * 해당 div의 스크롤 이벤트를 기준으로 함수가 작동합니다.
  *
+ * @param initialState 모든 훅에서 공유할 상태와 스크롤 콜백 객체.
+ * { globalState: object, defaultCallback?: function }형태로 전달.
+ *
  * @param hasScrollContainer window가 아닌 다른 div를 스크롤 컨테이너로 쓸 경우 true
  *
  * @return useLocalScroll 로컬 스크롤 훅 API
  */
-export const createLocalScrollHook = <T extends Record<string, any>>(
+export const createLocalScrollHook = <
+  T extends Record<string, any>,
+  U extends Record<string, any>,
+>(
+  initialState: { localState: T; defaultCallback?: ScrollCallback<T & U> },
   hasScrollContainer?: boolean,
-): LocalScrollCreatorReturnType<T> => {
+): LocalScrollCreatorReturnType<T, U> => {
   let isInitiated = false;
-  const listeners: Set<ScrollListener<T>> = new Set();
+  const listeners: Set<ScrollListener<T & U>> = new Set();
+  const defaultState: T = initialState.localState;
+  const defaultCallback = initialState.defaultCallback;
   let scrollContainer: AvailableHTMLElement | null = null;
 
   const handleOnScroll = () => {
@@ -192,9 +200,16 @@ export const createLocalScrollHook = <T extends Record<string, any>>(
         offsetHeight: element.offsetHeight,
       };
       const progress = roundBy(calculateProgress(target, currentViewport), 2);
+      if (defaultCallback)
+        defaultCallback({
+          ...apis,
+          ...getScrollUtils(progress, apis),
+          progress,
+        });
       if (callback)
         callback({
           ...apis,
+          ...getScrollUtils(progress, apis),
           progress,
         });
     }
@@ -212,16 +227,19 @@ export const createLocalScrollHook = <T extends Record<string, any>>(
     containerElement.addEventListener("resize", handleOnScroll);
   };
 
-  const useLocalScroll: LocalScrollHook<T> = (callback, initialState) => {
+  const useLocalScroll: LocalScrollHook<T, U> = (
+    callback = () => null,
+    initialState = {} as U,
+  ) => {
     const [, forceUpdate] = useReducer((c: number): number => c + 1, 0);
-    const localState = useRef<T>(initialState);
+    const localState = useRef<T & U>({ ...defaultState, ...initialState });
     const targetRef = useRef<AvailableHTMLElement | null>(null);
-    const listenerRef = useRef<ScrollListener<T>>(null);
-    const scrollCallback = useRef<ScrollCallback<T>>(callback);
+    const listenerRef = useRef<ScrollListener<T & U>>(null);
+    const scrollCallback = useRef<ScrollCallback<T & U>>(callback);
 
     const getLocalState = () => localState.current;
 
-    const setLocalState = (partial: Partial<T>) => {
+    const setLocalState = (partial: Partial<T & U>) => {
       if (partialIsDifferent(localState.current, partial)) {
         localState.current = { ...localState.current, ...partial };
         listeners.forEach((listener) => listener.forceUpdate());
@@ -239,7 +257,7 @@ export const createLocalScrollHook = <T extends Record<string, any>>(
       }
       //마운트 시 리스너 등록
       if (targetRef.current) {
-        const listener: ScrollListener<T> = {
+        const listener: ScrollListener<T & U> = {
           element: targetRef.current,
           callback: scrollCallback.current ?? null,
           forceUpdate,

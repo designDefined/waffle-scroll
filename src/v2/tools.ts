@@ -22,33 +22,43 @@ export const partialIsDifferent = <T extends object>(
 };
 
 //calculate
-export type Calculatable = { offsetTop: number; offsetHeight: number };
+export type Calculatable = {
+  offsetTop: number;
+  offsetHeight: number;
+  offsetLeft: number;
+  offsetWidth: number;
+};
 
-export const calculateProgress = (
+export const calculateVerticalProgress = (
   target: Calculatable,
   viewport: Calculatable,
+  isHorizontal = false,
 ): number => {
-  const { offsetTop: targetTop, offsetHeight: targetHeight } = target;
-  const { offsetTop: viewportTop, offsetHeight: viewportHeight } = viewport;
-  const diff = viewportTop + viewportHeight - targetTop;
+  const targetStart = isHorizontal ? target.offsetLeft : target.offsetTop;
+  const targetLength = isHorizontal ? target.offsetWidth : target.offsetHeight;
+  const viewportStart = isHorizontal ? viewport.offsetLeft : viewport.offsetTop;
+  const viewportLength = isHorizontal
+    ? viewport.offsetWidth
+    : viewport.offsetHeight;
+  const diff = viewportStart + viewportLength - targetStart;
   if (diff < 0) return 0;
-  if (diff > targetHeight + viewportHeight) return 3;
-  if (viewportHeight === targetHeight) {
-    if (diff <= viewportHeight) return diff / viewportHeight;
-    if (diff > viewportHeight) return 1 + diff / viewportHeight;
+  if (diff > targetLength + viewportLength) return 3;
+  if (viewportLength === targetLength) {
+    if (diff <= viewportLength) return diff / viewportLength;
+    if (diff > viewportLength) return 1 + diff / viewportLength;
   }
-  if (viewportHeight < targetHeight) {
-    if (diff <= viewportHeight) return diff / viewportHeight;
-    if (diff > viewportHeight && diff < targetHeight)
-      return 1 + (diff - viewportHeight) / (targetHeight - viewportHeight);
-    if (diff >= targetHeight) return 2 + (diff - targetHeight) / viewportHeight;
+  if (viewportLength < targetLength) {
+    if (diff <= viewportLength) return diff / viewportLength;
+    if (diff > viewportLength && diff < targetLength)
+      return 1 + (diff - viewportLength) / (targetLength - viewportLength);
+    if (diff >= targetLength) return 2 + (diff - targetLength) / viewportLength;
   }
-  if (viewportHeight > targetHeight) {
-    if (diff <= targetHeight) return diff / targetHeight;
-    if (diff > targetHeight && diff < viewportHeight)
-      return 1 + (diff - targetHeight) / (viewportHeight - targetHeight);
-    if (diff >= viewportHeight)
-      return 2 + (diff - viewportHeight) / targetHeight;
+  if (viewportLength > targetLength) {
+    if (diff <= targetLength) return diff / targetLength;
+    if (diff > targetLength && diff < viewportLength)
+      return 1 + (diff - targetLength) / (viewportLength - targetLength);
+    if (diff >= viewportLength)
+      return 2 + (diff - viewportLength) / targetLength;
   }
   return -999999;
 };

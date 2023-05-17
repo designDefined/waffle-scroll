@@ -1,4 +1,4 @@
-import { useLayoutEffect, useReducer, useRef } from "react";
+import { MutableRefObject, useLayoutEffect, useReducer, useRef } from "react";
 import {
   Calculatable,
   calculateProgress,
@@ -13,6 +13,7 @@ type AvailableHTMLElement = HTMLDivElement;
 export type ScrollApis<T extends object> = {
   getScrollState: T;
   setScrollState: (partial: Partial<T>) => void;
+  setGlobalState: (key: string, value: boolean) => void;
 };
 
 type ScrollFunction<T extends object> = (
@@ -25,17 +26,25 @@ type ScrollFunction<T extends object> = (
 type ScrollListener<T extends object> = {
   element: AvailableHTMLElement;
   scrollFunction: ScrollFunction<T>;
-  apis: {
-    getScrollState: T;
-    setScrollState: (partial: Partial<T>) => void;
-  };
+  globalKeys: string[];
+  forceUpdate: () => void;
+  apis: ScrollApis<T>;
 };
-
-//local scope window
 
 //데이터들
 let isInitiated = false;
 const scrollListeners: ScrollListener<any>[] = [];
+const globalState: Record<string, boolean> = {};
+const getGlobalStateWithKeys: (
+  totalState: Record<string, boolean>,
+  keys: string[],
+) => Record<string, boolean> = (totalState, keys) => {
+  const partialState: Record<string, boolean> = {};
+  keys.forEach((key) => {
+    partialState[key] = globalState[key];
+  });
+  return partialState;
+};
 
 //스크롤 이벤트 핸들러
 const onScrollHandler = () => {
@@ -61,6 +70,7 @@ const onScrollHandler = () => {
 const useWaffleScroll = <T extends object>(
   scrollFunction: ScrollFunction<T>,
   initialState: T,
+  globalStateKey?: string[],
 ) => {
   const [, forceUpdate] = useReducer((c: number): number => c + 1, 0);
   const ref = useRef<AvailableHTMLElement | null>(null);
@@ -68,10 +78,20 @@ const useWaffleScroll = <T extends object>(
   const func = useRef<ScrollFunction<T>>(scrollFunction);
   const apis: ScrollApis<T> = {
     getScrollState: state.current,
-    setScrollState: (partial: Partial<T>): void => {
+    setScrollState: (partial) => {
       if (partialIsDifferent(state.current, partial)) {
         state.current = { ...state.current, ...partial };
         forceUpdate();
+      }
+    },
+    setGlobalState: (key, value) => {
+      const previousValue = globalState[key];
+      if (previousValue !== value) {
+        globalState[key] = value;
+
+        scrollListeners
+          .filter((listener) => listener.globalKeys.includes(key))
+          .forEach((listener) => listener.forceUpdate());
       }
     },
   };
@@ -87,11 +107,20 @@ const useWaffleScroll = <T extends object>(
       const listener: ScrollListener<T> = {
         element: ref.current,
         scrollFunction: func.current,
+        globalKeys: globalStateKey ?? [],
+        forceUpdate,
         apis: apis,
       };
       scrollListeners.push(listener);
       onScrollHandler();
     }
+    //globalStateKey가 있을 시 등록
+    if (globalStateKey) {
+      globalStateKey.forEach((key) => {
+        globalState[key] = false;
+      });
+    }
+
     //언마운트 시 리스너 삭제
     return () => {
       const index = scrollListeners.findIndex(
@@ -103,7 +132,20 @@ const useWaffleScroll = <T extends object>(
     };
   }, [ref]);
 
-  return { ref, scrollState: state.current };
+  const hooks: {
+    ref: MutableRefObject<any>;
+    scrollState: T;
+    globalState?: Record<string, boolean>;
+  } = { ref, scrollState: state.current };
+  if (globalStateKey) {
+    const partialGlobalState = getGlobalStateWithKeys(
+      globalState,
+      globalStateKey,
+    );
+    hooks.globalState = partialGlobalState;
+  }
+
+  return hooks;
 };
 
 export default useWaffleScroll;

@@ -3,8 +3,8 @@
 ---
 
 - Author: `@designDefined`
-- version: 1.1.1
-- Last Update: 23-05-16
+- version: 1.1.2
+- Last Update: 23-05-18
 
 ## Table of Content
 
@@ -95,6 +95,7 @@ const ContainerComponent = () => {
 - `initialState`: 상태의 디폴트값을 정의하는 객체
     - globalState: 상태의 초기값
     - defaultCallback: (optional) 모든 훅 사용 시에 기본으로 적용할 콜백
+    - isHorizontal: (optional) true로 하면 가로 스크롤을 감지
 - `hasScrollContainer`: (optional) `window`가 아니라 다른 엘리먼트를 스크롤 컨테이너로 사용할 때 `true`로 전달
 
 **반환값**
@@ -130,6 +131,7 @@ const useScroll = createGlobalScrollHook(initialState, true);
 - `initialState`: 상태의 디폴트값을 정의하는 객체
     - localState: (optional) 상태의 초기값 (상태가 공유되지 않습니다)
     - defaultCallback: (optional) 모든 훅 사용 시에 기본으로 적용할 콜백
+    - isHorizontal: (optional) true로 하면 가로 스크롤을 감지
 - `hasScrollContainer`: (optional) `window`가 아니라 다른 엘리먼트를 스크롤 컨테이너로 사용할 때 `true`로 전달
 
 
@@ -204,16 +206,23 @@ scroll state의 초기값은 `{available:false, notFold:false}`입니다. 스크
 
 ### current version
 
+- ver: 1.1.2
+- released: 23-05-18
+- features
+  - 가로 스크롤 모드 추가
+
+
+### previous versions
+
 - ver: 1.1.1
 - released: 23-05-16
 - features
-    - scrollTo 기능 추가
-    - scroll hook 패러미터 입력 방식 변경
-    - 초기 상태 반영 안 되는 오류 해결
-    - 유틸리티 함수 (toggleScroll) 추가
-    - 리드미 오타 수정
+  - scrollTo 기능 추가
+  - scroll hook 패러미터 입력 방식 변경
+  - 초기 상태 반영 안 되는 오류 해결
+  - 유틸리티 함수 (toggleScroll) 추가
+  - 리드미 오타 수정
 
-### previous versions
 
 - ver: 1.1.0
 - released: 23-05-12
@@ -221,11 +230,10 @@ scroll state의 초기값은 `{available:false, notFold:false}`입니다. 스크
     - create scroll hook 형식으로 변경
     - local / global hook 분리
 
-### Upcoming Features
 
-- 가로 스크롤 모드
+### Upcoming Features
 - recordAnchorId 기능 추가
 - 더 많은 유틸리티 함수
 - 성능 최적화
- 
-
+- position:relative 필요 없게 변경
+- jsDoc 최신화

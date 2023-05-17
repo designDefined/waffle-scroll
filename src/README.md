@@ -223,6 +223,8 @@ scroll state의 초기값은 `{available:false, notFold:false}`입니다. 스크
 
 ### Upcoming Features
 
+- 가로 스크롤 모드
+- recordAnchorId 기능 추가
 - 더 많은 유틸리티 함수
 - 성능 최적화
  

@@ -47,11 +47,13 @@ export const createGlobalScrollHook = <T extends Record<string, any>>(
   initialState: {
     globalState: T;
     defaultCallback?: ScrollCallback<T>;
+    isHorizontal?: boolean;
   },
   hasScrollContainer?: boolean,
 ): ScrollCreatorReturnType<T> => {
   let isInitiated = false;
   let globalState: T = initialState.globalState;
+  const isHorizontal = initialState.isHorizontal;
   const defaultCallback = initialState.defaultCallback;
   const listeners: Set<ScrollListener<T>> = new Set();
   let scrollContainer: AvailableHTMLElement | null = null;
@@ -69,18 +71,27 @@ export const createGlobalScrollHook = <T extends Record<string, any>>(
       ? {
           offsetTop: scrollContainer?.scrollTop ?? 999999,
           offsetHeight: scrollContainer?.offsetHeight ?? 0,
+          offsetLeft: scrollContainer?.scrollLeft ?? 999999,
+          offsetWidth: scrollContainer?.offsetWidth ?? 0,
         }
       : {
           offsetTop: window.scrollY,
           offsetHeight: window.innerHeight,
+          offsetLeft: window.scrollX,
+          offsetWidth: window.innerWidth,
         };
 
     for (const { element, apis, callback } of listeners) {
       const target: Calculatable = {
         offsetTop: element.offsetTop,
         offsetHeight: element.offsetHeight,
+        offsetLeft: element.offsetLeft,
+        offsetWidth: element.offsetWidth,
       };
-      const progress = roundBy(calculateProgress(target, currentViewport), 2);
+      const progress = roundBy(
+        calculateProgress(target, currentViewport, isHorizontal ?? false),
+        2,
+      );
 
       //defaultCallback이 있을 경우 적용
       if (defaultCallback)
@@ -186,13 +197,18 @@ export const createLocalScrollHook = <
   T extends Record<string, any>,
   U extends Record<string, any>,
 >(
-  initialState: { localState: T; defaultCallback?: ScrollCallback<T & U> },
+  initialState: {
+    localState: T;
+    defaultCallback?: ScrollCallback<T & U>;
+    isHorizontal?: boolean;
+  },
   hasScrollContainer?: boolean,
 ): LocalScrollCreatorReturnType<T, U> => {
   let isInitiated = false;
   const listeners: Set<ScrollListener<T & U>> = new Set();
   const defaultState: T = initialState.localState;
   const defaultCallback = initialState.defaultCallback;
+  const isHorizontal = initialState.isHorizontal;
   let scrollContainer: AvailableHTMLElement | null = null;
 
   const handleOnScroll = () => {
@@ -200,18 +216,27 @@ export const createLocalScrollHook = <
       ? {
           offsetTop: scrollContainer?.scrollTop ?? 999999,
           offsetHeight: scrollContainer?.offsetHeight ?? 0,
+          offsetLeft: scrollContainer?.scrollLeft ?? 999999,
+          offsetWidth: scrollContainer?.offsetWidth ?? 0,
         }
       : {
           offsetTop: window.scrollY,
           offsetHeight: window.innerHeight,
+          offsetLeft: window.scrollX,
+          offsetWidth: window.innerWidth,
         };
 
     for (const { element, apis, callback } of listeners) {
       const target: Calculatable = {
         offsetTop: element.offsetTop,
         offsetHeight: element.offsetHeight,
+        offsetLeft: element.offsetLeft,
+        offsetWidth: element.offsetWidth,
       };
-      const progress = roundBy(calculateProgress(target, currentViewport), 2);
+      const progress = roundBy(
+        calculateProgress(target, currentViewport, isHorizontal ?? false),
+        2,
+      );
       if (defaultCallback)
         defaultCallback({
           ...apis,

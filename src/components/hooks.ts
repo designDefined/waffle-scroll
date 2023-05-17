@@ -16,3 +16,14 @@ export const useNestedScroll = createLocalScrollHook(
   },
   true,
 );
+
+export const useHorizontalScroll = createGlobalScrollHook(
+  {
+    globalState: { progress: 0 },
+    defaultCallback: ({ setState, progress }) => {
+      setState({ progress });
+    },
+    isHorizontal: true,
+  },
+  true,
+);

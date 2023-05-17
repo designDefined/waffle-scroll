@@ -29,7 +29,7 @@ export type Calculatable = {
   offsetWidth: number;
 };
 
-export const calculateVerticalProgress = (
+export const calculateProgress = (
   target: Calculatable,
   viewport: Calculatable,
   isHorizontal = false,
@@ -41,6 +41,8 @@ export const calculateVerticalProgress = (
     ? viewport.offsetWidth
     : viewport.offsetHeight;
   const diff = viewportStart + viewportLength - targetStart;
+  console.log(targetStart);
+
   if (diff < 0) return 0;
   if (diff > targetLength + viewportLength) return 3;
   if (viewportLength === targetLength) {

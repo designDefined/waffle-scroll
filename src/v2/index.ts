@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useReducer, useRef } from "react";
 import {
   Calculatable,
-  calculateVerticalProgress,
+  calculateProgress,
   partialIsDifferent,
   roundBy,
 } from "./tools";
@@ -67,7 +67,6 @@ export const createGlobalScrollHook = <T extends Record<string, any>>(
   };
 
   const handleOnScroll = () => {
-    const calculateProgress = calculateVerticalProgress;
     const currentViewport: Calculatable = hasScrollContainer
       ? {
           offsetTop: scrollContainer?.scrollTop ?? 999999,
@@ -213,7 +212,6 @@ export const createLocalScrollHook = <
   let scrollContainer: AvailableHTMLElement | null = null;
 
   const handleOnScroll = () => {
-    const calculateProgress = calculateVerticalProgress;
     const currentViewport: Calculatable = hasScrollContainer
       ? {
           offsetTop: scrollContainer?.scrollTop ?? 999999,
